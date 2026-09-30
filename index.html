@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Feedback</title>
+<style>
+:root{--bg1:#ffe3f1;--bg2:#d9ecff;--card:#fffffff0;--tx:#2b2540;--mut:#6d6785;--ac:#7c4dff;--ac2:#ff6fa5;--bd:#e4def5;--star:#ffb400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2a1a3d;--bg2:#12233f;--card:#1e1b30f0;--tx:#f1eeff;--mut:#a8a2c4;--bd:#3a3559}}
+:root[data-theme="dark"]{--bg1:#2a1a3d;--bg2:#12233f;--card:#1e1b30f0;--tx:#f1eeff;--mut:#a8a2c4;--bd:#3a3559}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,sans-serif;color:var(--tx);background:linear-gradient(135deg,var(--bg1),var(--bg2)) fixed;position:relative;overflow-x:hidden}
+.b{position:fixed;font-size:42px;opacity:.5;animation:fl 7s ease-in-out infinite;pointer-events:none}
+@keyframes fl{50%{transform:translateY(-22px) rotate(8deg)}}
+main{max-width:640px;margin:0 auto;padding:20px 14px 40px;position:relative}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:22px;box-shadow:0 10px 30px #7c4dff22;margin-bottom:14px}
+h1,h2,h3{margin:0 0 10px}h1{font-size:26px}h2{font-size:21px}h3{font-size:16px}
+p{color:var(--mut);margin:6px 0}
+label{display:block;font-weight:700;margin:12px 0 4px;font-size:14px}
+input,textarea{width:100%;padding:12px;border-radius:12px;border:2px solid var(--bd);background:transparent;color:var(--tx);font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--ac)}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:12px 18px;font-weight:800;color:#fff;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+button.g{background:transparent;color:var(--tx);border:2px solid var(--bd)}button.s{padding:6px 10px;font-size:13px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;margin-bottom:8px}.tabs button{flex:1}
+.mascot{font-size:64px;text-align:center;animation:fl 3s ease-in-out infinite}
+.stars{display:flex;justify-content:center;gap:6px;margin:14px 0}
+.stars button{background:none;font-size:42px;padding:2px 6px;color:var(--bd);line-height:1}
+.stars button.on{color:var(--star);transform:scale(1.1)}
+.bar{height:10px;border-radius:9px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats div{background:var(--bd);border-radius:14px;padding:10px 4px}.stats b{font-size:22px;display:block}
+.sug{border-left:4px solid var(--ac2);padding:6px 10px;margin:8px 0;background:var(--bd);border-radius:0 10px 10px 0;font-size:14px}
+.sug small{color:var(--mut);display:block}
+.qi{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:14px}.qi span{flex:1}
+.err{color:#e5484d;font-size:14px;min-height:18px}.ok{color:#2e9e5b;font-size:14px}.lnk{background:none;color:var(--ac);padding:8px;width:100%;margin-top:6px}
+.vis{display:flex;gap:8px}.vis button{flex:1}
+.hint{font-size:12px;color:var(--mut)}
+</style></head><body>
+<span class="b" style="left:6%;top:12%">🦊</span><span class="b" style="right:8%;top:22%;animation-delay:1s">🐼</span><span class="b" style="left:10%;bottom:10%;animation-delay:2s">🦄</span><span class="b" style="right:6%;bottom:14%;animation-delay:3s">🐰</span>
+<main id="app"></main>
+<script>
+var KEY="fb_v1",ANIM=["🦊","🐼","🐰","🦄","🐯","🐸","🐻","🐨"];
+var QS=["How clear was the faculty's teaching?","Was the course content well organised?","How well did the faculty explain difficult topics?","Were practical examples used enough?","How interactive were the classes?","Was the pace of teaching comfortable?","Did the faculty encourage questions?","How approachable is the faculty?","Was the study material helpful?","How fair were the assignments and tests?","Was feedback on your work timely?","Did classes start and end on time?","How well were doubts cleared?","Was technology used effectively?","Overall, how satisfied are you with this course?"];
+var USERS=[{id:"faculty",pw:"admin123",role:"faculty",name:"Faculty"}];
+["Anu","Bala","Charu","Dev","Esha"].forEach(function(n,i){USERS.push({id:"stu"+(i+1),pw:"pass123",role:"student",name:n})});
+function seed(){var a=function(r,s){return{r:r,s:s}};
+ var qs=QS.slice(),ans=function(r,s){return qs.map(function(_,i){return a(r-(i%3==0?1:0),i==3?s:"")})};
+ return{qs:qs,res:[{u:"stu4",name:"Dev",anon:false,ans:ans(5,"More practical examples")},{u:"stu5",name:"Esha",anon:true,ans:ans(4,"More interactive activities")}]}}
+var db;try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!db||!db.qs)db=seed();
+if(!db.users)db.users=[];
+function allUsers(){return USERS.concat(db.users)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var me=null,role="student",step=0,draft=null,filt="all",err="",msg="",mode="login",$=function(s){return document.querySelector(s)};
+function view(h){$("#app").innerHTML=h;window.scrollTo(0,0)}
+function login(){
+ var su=mode=="signup";
+ view('<div class="card"><div class="mascot">🦊</div><h1 style="text-align:center">Student Feedback</h1><p style="text-align:center">'+(su?"Create your account":"Welcome! Please log in.")+'</p>'+
+ '<div class="tabs"><button class="'+(role=="student"?"":"g")+'" onclick="role=\'student\';err=msg=\'\';login()">Student</button><button class="'+(role=="faculty"?"":"g")+'" onclick="role=\'faculty\';err=msg=\'\';login()">Faculty</button></div>'+
+ (su?'<label>Full Name</label><input id="fn" autocomplete="name">':'')+
+ '<label>User ID</label><input id="u" autocomplete="username"><label>Password</label><input id="p" type="password" autocomplete="'+(su?"new-password":"current-password")+'">'+
+ (su?'<label>Confirm Password</label><input id="p2" type="password" autocomplete="new-password">'+(role=="faculty"?'<label>Faculty Access Code</label><input id="fc"><p class="hint">Demo code: FACULTY123</p>':''):'')+
+ '<div class="err">'+err+'</div><div class="ok">'+msg+'</div>'+
+ '<button style="width:100%;margin-top:8px" onclick="'+(su?"doSignup()":"doLogin()")+'">'+(su?"SIGN UP":"LOGIN")+'</button>'+
+ '<button class="lnk" onclick="mode=\''+(su?"login":"signup")+'\';err=msg=\'\';login()">'+(su?"Already have an account? Log in":"New here? Sign up")+'</button>'+
+ (su?'':'<p class="hint">Demo student: stu1 / pass123<br>Demo faculty: faculty / admin123</p>')+'</div>')}
+function fail(m){err=m;msg="";login()}
+function doSignup(){
+ var fn=$("#fn").value.trim(),id=$("#u").value.trim(),pw=$("#p").value,p2=$("#p2").value;
+ if(!fn||!id||!pw)return fail("Please fill all fields");
+ if(pw.length<4)return fail("Password must be at least 4 characters");
+ if(pw!=p2)return fail("Passwords do not match");
+ if(role=="faculty"&&$("#fc").value.trim()!="FACULTY123")return fail("Wrong faculty access code");
+ if(allUsers().some(function(x){return x.id.toLowerCase()==id.toLowerCase()}))return fail("User ID already taken");
+ db.users.push({id:id,pw:pw,role:role,name:fn});save();
+ err="";msg="Account created! Please log in.";mode="login";login()}
+function doLogin(){var id=$("#u").value.trim(),pw=$("#p").value;
+ var u=allUsers().filter(function(x){return x.id==id&&x.pw==pw})[0];
+ if(!u)return fail("Wrong ID or password");
+ err=msg="";me=u;step=0;draft={a:db.qs.map(function(){return{r:0,s:""}}),anon:false};route()}
+function logout(){me=null;err=msg="";mode="login";login()}
+function route(){me.role=="faculty"?dash():stu()}
+function hdr(t){return'<div class="row" style="margin-bottom:10px"><b>'+t+'</b><button class="g s" onclick="logout()">Logout</button></div>'}
+function stu(){
+ var done=db.res.some(function(r){return r.u==me.id});
+ if(done)return view(hdr("Hi "+esc(me.name))+'<div class="card" style="text-align:center"><div class="mascot">🎉</div><h2>Thank you!</h2><p>Your feedback is submitted.</p></div>');
+ var n=db.qs.length;
+ if(step>=n){return view(hdr("Almost done")+'<div class="card"><div class="mascot">🦄</div><h2>Choose visibility</h2><p>Should faculty see your name?</p><div class="vis"><button class="'+(draft.anon?"g":"")+'" onclick="draft.anon=false;stu()">👀 Visible</button><button class="'+(draft.anon?"":"g")+'" onclick="draft.anon=true;stu()">🕶️ Anonymous</button></div><div class="row" style="margin-top:18px"><button class="g" onclick="step--;stu()">← Back</button><button onclick="submit()">Submit ✨</button></div></div>')}
+ var d=draft.a[step],st="";
+ for(var i=1;i<=5;i++)st+='<button class="'+(i<=d.r?"on":"")+'" onclick="draft.a['+step+'].r='+i+';stu()" aria-label="'+i+' star">★</button>';
+ view(hdr("Hi "+esc(me.name))+'<div class="card"><div class="row"><b>Question '+(step+1)+' / '+n+'</b></div><div class="bar" style="margin:8px 0"><i style="width:'+((step+1)/n*100)+'%"></i></div>'+
+ '<div class="mascot">'+ANIM[step%ANIM.length]+'</div><h2 style="text-align:center">'+esc(db.qs[step])+'</h2><div class="stars">'+st+'</div>'+
+ '<label>What can be improved?</label><textarea id="sg" rows="3" oninput="draft.a['+step+'].s=this.value">'+esc(d.s)+'</textarea>'+
+ '<div class="row" style="margin-top:16px"><button class="g" '+(step?"":"disabled")+' onclick="step--;stu()">← Back</button><button '+(d.r?"":"disabled")+' onclick="step++;stu()">Next →</button></div></div>')}
+function submit(){db.res.push({u:me.id,name:me.name,anon:draft.anon,ans:draft.a});save();stu()}
+function avg(a){return a.length?(a.reduce(function(x,y){return x+y},0)/a.length):0}
+function dash(){
+ var stuN=allUsers().filter(function(u){return u.role=="student"}).length,R=db.res,all=[];
+ R.forEach(function(r){r.ans.forEach(function(a){if(a.r)all.push(a.r)})});
+ var qh="",sg="";
+ db.qs.forEach(function(q,i){var v=R.map(function(r){return r.ans[i]&&r.ans[i].r}).filter(Boolean),m=avg(v);
+  qh+='<div style="margin:10px 0"><div class="row" style="font-size:14px"><span>'+(i+1)+'. '+esc(q)+'</span><b>'+(m?m.toFixed(1):"–")+'</b></div><div class="bar"><i style="width:'+m/5*100+'%"></i></div></div>'});
+ R.forEach(function(r){if(filt=="vis"&&r.anon||filt=="anon"&&!r.anon)return;
+  r.ans.forEach(function(a,i){if(a&&a.s&&a.s.trim())sg+='<div class="sug">'+esc(a.s)+'<small>'+(r.anon?"Anonymous":esc(r.name))+' · Q'+(i+1)+'</small></div>'})});
+ var qm=db.qs.map(function(q,i){return'<div class="qi"><span>'+(i+1)+'. '+esc(q)+'</span><button class="g s" onclick="delQ('+i+')">✕</button></div>'}).join("");
+ view(hdr("Faculty Dashboard")+'<div class="card"><h3>Feedback Summary</h3><div class="stats"><div><b>'+stuN+'</b>Total Students</div><div><b>'+R.length+'</b>Submitted</div><div><b>'+(all.length?avg(all).toFixed(1):"–")+'</b>Avg / 5</div></div></div>'+
+ '<div class="card"><h3>Ratings by Question</h3>'+(R.length?qh:"<p>No feedback yet.</p>")+'</div>'+
+ '<div class="card"><h3>Suggestions</h3><div class="vis" style="margin-bottom:8px">'+[["all","All"],["vis","Visible"],["anon","Anonymous"]].map(function(f){return'<button class="s '+(filt==f[0]?"":"g")+'" onclick="filt=\''+f[0]+'\';dash()">'+f[1]+'</button>'}).join("")+'</div>'+(sg||"<p>No suggestions.</p>")+'</div>'+
+ '<div class="card"><h3>Question Management ('+db.qs.length+')</h3><p class="hint">Keep 15–20 questions. Changing questions clears old responses.</p>'+qm+
+ '<div class="row" style="margin-top:10px;flex-wrap:nowrap"><input id="nq" placeholder="New question"><button onclick="addQ()">Add</button></div>'+
+ '<button class="g s" style="margin-top:14px" onclick="resetAll()">Reset demo data</button></div>')}
+function addQ(){var v=$("#nq").value.trim();if(!v||db.qs.length>=20)return;db.qs.push(v);db.res=[];save();dash()}
+function delQ(i){if(db.qs.length<=1)return;db.qs.splice(i,1);db.res=[];save();dash()}
+function resetAll(){db=seed();save();dash()}
+login();
+</script></body></html>
